@@ -3,16 +3,7 @@
 
    using namespace std;
    
-class pessoa {
-    string nome;
-    int idade;
-    string cpf;
-    public:
-  void exibirDados() {
-      cout << "Nome: " << nome << std::endl;
-      cout << "Idade: " << idade << std::endl;
-      cout << "CPF: " << cpf << std::endl;
-    }
+
     string getNome() {
         return nome;
     }   

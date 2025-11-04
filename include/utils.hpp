@@ -1,1 +1,0 @@
-// projeto LpI/include para fazer e ultilizar c++. 
