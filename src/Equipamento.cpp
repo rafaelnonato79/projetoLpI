@@ -20,6 +20,6 @@ Equipamento Equipamento::operator+(const Equipamento &o) const {
 }
 
 std::ostream &operator<<(std::ostream &os, const Equipamento &e) {
-    os << "ID:" << e.id << " " << e.nome << " (x" << e.quantidade << ")";
+    os << "ID:" << e.id << " " << e.nome << " (" << e.quantidade << " repetições)";
     return os;
 }

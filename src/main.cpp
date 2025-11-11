@@ -5,6 +5,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include "../header/Exceptions.h"
 #include "../header/Gerenciador.h"
 #include "../header/Aluno.h"
 #include "../header/Professor.h"
@@ -26,9 +27,27 @@ static double parseDoubleFromString(const std::string &s) {
     try { return std::stod(t); } catch (...) { return 0.0; }
 }
 
+static int readIntFromInput() {
+    std::string s;
+    if (!std::getline(std::cin, s)) throw ValidationError("Entrada inesperada");
+    // trim
+    auto start = s.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos) throw ValidationError("Entrada vazia");
+    auto end = s.find_last_not_of(" \t\r\n");
+    std::string t = s.substr(start, end - start + 1);
+    try {
+        size_t idx = 0;
+        int v = std::stoi(t, &idx);
+        if (idx != t.size()) throw ValidationError("Entrada invalida: digite um numero");
+        return v;
+    } catch (...) {
+        throw ValidationError("Entrada invalida: digite um numero");
+    }
+}
+
 void submenuAcademia(Gerenciador &g) {
-    int op = -1;
-    while (op != 0) {
+    int opcao = -1;
+    while (opcao != 0) {
         cout << "\n-- Gerenciar Academia --\n";
         cout << "1. Ver nome da academia\n";
         cout << "2. Mudar nome da academia\n";
@@ -37,13 +56,14 @@ void submenuAcademia(Gerenciador &g) {
     cout << "5. Definir limite maximo de alunos\n";
     cout << "6. Ver detalhes da academia\n";
         cout << "0. Voltar\n";
-        cout << "Opcao: "; cin >> op; cin.ignore();
-    if (op == 1) {
+    cout << "Opcao: ";
+    try { opcao = readIntFromInput(); } catch (const ValidationError &e) { cout << "Erro: " << e.what() << "\n"; opcao = -1; continue; }
+    if (opcao == 1) {
         cout << "=========== Nome da Academia =============\n "; 
         cout << g.getNomeAcademia();
         cout << "\n========================================";
     }
-    else if (op == 2) { 
+    else if (opcao == 2) { 
         string nome; 
         cout << " =================== Novo Nome ===================\n"; 
         cout << "Novo nome: "; 
@@ -51,19 +71,19 @@ void submenuAcademia(Gerenciador &g) {
         g.setNomeAcademia(nome); 
         cout<< "\n=====================================";
     }
-    else if (op == 3) { 
+    else if (opcao == 3) { 
         string h; 
         cout << "Horario (ex: Seg 08:00-12:00): "; 
         getline(cin, h); 
         g.adicionarHorario(h); 
-    }else if (op == 4) { 
+    }else if (opcao == 4) { 
         cout << "\n===== HORARIOS =====\n\n"; g.listarHorarios(); cout << "\n====================================="; }
-    else if (op == 5) {
+    else if (opcao == 5) {
         int max; cout << "Informe o limite maximo de alunos (0 para sem limite): "; cin >> max; cin.ignore();
         g.setMaxAlunos(max);
         cout << "Limite configurado para " << (max == 0 ? string("sem limite") : to_string(max)) << " alunos." << endl;
     }
-    else if (op == 6) {
+    else if (opcao == 6) {
         cout << "\n===== DETALHES DA ACADEMIA =====\n\n";
         cout << "Nome: " << g.getNomeAcademia() << "\n";
         int max = g.getMaxAlunos();
@@ -77,16 +97,17 @@ void submenuAcademia(Gerenciador &g) {
 }
 
 void submenuPlanos(Gerenciador &g) {
-    int op = -1;
-    while (op != 0) {
+    int opcao = -1;
+    while (opcao != 0) {
         cout << "\n====================== Gerenciar Planos =====================\n";
         cout << "1. Cadastrar plano personalizado\n";
         cout << "2. Listar planos\n";
         cout << "3. Remover plano\n";
         cout << "4. Editar plano\n";
         cout << "0. Voltar\n";
-        cout << "Opcao: "; cin >> op; cin.ignore();
-        if (op == 1) {
+    cout << "Opcao: ";
+    try { opcao = readIntFromInput(); } catch (const ValidationError &e) { cout << "Erro: " << e.what() << "\n"; opcao = -1; continue; }
+        if (opcao == 1) {
             string d; 
             string vs; 
             double v; 
@@ -97,11 +118,11 @@ void submenuPlanos(Gerenciador &g) {
             v = parseDoubleFromString(vs);
             g.adicionarPlanoPersonalizado(d, v);
             cout << "Plano adicionado com sucesso.\n";
-        } else if (op == 2) {
+        } else if (opcao == 2) {
             cout << "\n======= LISTA DE PLANOS =======\n\n";
             g.listarPlanos();
 
-        } else if (op == 3) {
+        } else if (opcao == 3) {
             int id; cout << "ID do plano a remover: "; cin >> id; cin.ignore();
             try { 
                 g.removerPlanoPorId(id); 
@@ -109,10 +130,10 @@ void submenuPlanos(Gerenciador &g) {
             }catch (const exception &e) { 
                 cout << "Erro: " << e.what() << "\n"; 
             }
-        } else if (op == 4) {
+        } else if (opcao == 4) {
             int id; cout << "ID do plano a editar: "; cin >> id; cin.ignore();
-            auto p = g.buscarPlanoPorId(id);
-            if (!p) { cout << "Plano nao encontrado.\n"; }
+            auto plano = g.buscarPlanoPorId(id);
+            if (!plano) { cout << "Plano nao encontrado.\n"; }
             else {
                 cout << "Nova descrição (enter para manter): "; 
                 string nova; 
@@ -120,8 +141,8 @@ void submenuPlanos(Gerenciador &g) {
                 cout << "Novo valor (enter para manter): "; 
                 string vs; 
                 getline(cin, vs);
-                string novaDescricao = nova.empty() ? p->getDescricao() : nova;
-                double novoValor = vs.empty() ? p->calcularValor() : parseDoubleFromString(vs);
+                string novaDescricao = nova.empty() ? plano->getDescricao() : nova;
+                double novoValor = vs.empty() ? plano->calcularValor() : parseDoubleFromString(vs);
                 if (g.editarPlano(id, novaDescricao, novoValor)){
                     cout << "Plano atualizado.\n"; 
                 } else{
@@ -134,31 +155,32 @@ void submenuPlanos(Gerenciador &g) {
 }
 
 void submenuProfessores(Gerenciador &g) {
-    int op = -1;
-    while (op != 0) {
+    int opcao = -1;
+    while (opcao != 0) {
         cout << "\n======= Gerenciar Professores =======\n";
         cout << "1. Adicionar professor\n";
         cout << "2. Remover professor\n";
         cout << "3. Listar professores\n";
-        cout << "4. Atribuir professor a aula\n";
-        cout << "5. Ver aulas de um professor\n";
-        cout << "6. Ver alunos ligados a professor\n";
-        cout << "7. Editar professor\n";
-        cout << "8. Adicionar aula\n";
-        cout << "9. Remover aula\n";
+        // cout << "4. Atribuir professor a aula\n";
+        cout << "4. Ver aulas de um professor\n";
+        cout << "5. Ver alunos ligados a professor\n";
+        cout << "6. Editar professor\n";
+        cout << "7. Adicionar aula\n";
+        cout << "8. Remover aula\n";
         cout << "0. Voltar\n";
-        cout << "Opcao: "; cin >> op; cin.ignore();
-        if (op == 1) {
-            string nome, tel, esp; 
+    cout << "Opcao: ";
+    try { opcao = readIntFromInput(); } catch (const ValidationError &e) { cout << "Erro: " << e.what() << "\n"; opcao = -1; continue; }
+        if (opcao == 1) {
+            string nome, telelefone, especialidade; 
             cout << "Nome: "; 
             getline(cin, nome); 
             cout << "Telefone: "; 
-            getline(cin, tel); 
+            getline(cin, telelefone); 
             cout << "Especialidade: "; 
-            getline(cin, esp);
-            g.adicionarProfessor(Professor(0, nome, tel, esp));
+            getline(cin, especialidade);
+            g.adicionarProfessor(Professor(0, nome, telelefone, especialidade));
             cout << "Professor adicionado com sucesso.\n";
-        } else if (op == 2) {
+        } else if (opcao == 2) {
             int id; 
             cout << "ID do professor: "; 
             cin >> id; 
@@ -169,51 +191,81 @@ void submenuProfessores(Gerenciador &g) {
             } catch (const exception &e) {
                 cout << "Erro: " << e.what() << "\n"; 
             }
-        } else if (op == 3) { 
+        } else if (opcao == 3) { 
             g.listarProfessores(); 
         }
-        else if (op == 4) {
-            int id; string nomeAula; cout << "ID do professor: "; cin >> id; cin.ignore(); cout << "Nome da aula: "; getline(cin, nomeAula);
-            try { g.atribuirProfessorAAula(id, nomeAula); cout << "Professor atribuido a aula.\n"; } catch (const exception &e) { cout << "Erro: " << e.what() << "\n"; }
-        } else if (op == 5) {
-            int id; cout << "ID do professor: "; cin >> id; cin.ignore(); auto aulas = g.listarAulasDoProfessor(id);
+        // else if (opcao == 4) {
+        //     int id; string nomeAula; 
+        //     cout << "ID do professor: "; 
+        //     cin >> id; 
+        //     cin.ignore(); 
+        //     cout << "Nome da aula: "; 
+        //     getline(cin, nomeAula);
+        //     try {
+        //         auto aula = g.atribuirProfessorAAula(id, nomeAula);
+        //         cout << "Professor atribuido a aula.\n";
+        //         if (aula) {
+        //             cout << "Aula atualizada:\n";
+        //             aula->exibir(cout);
+        //             cout << "\n";
+        //         }
+    //     } catch (const exception &e) {
+    //         cout << "Erro: " << e.what() << "\n";
+    //     }
+    else if (opcao == 4) {
+            int id; cout << "ID do professor: "; 
+            cin >> id; 
+            cin.ignore(); 
+            auto aulas = g.listarAulasDoProfessor(id);
             cout << "\n===== AULAS DO PROFESSOR =====\n\n";
             if (aulas.empty()) cout << "Nenhuma aula.\n"; else for (auto &n : aulas) cout << n << "\n";
-        } else if (op == 6) {
-            int id; cout << "ID do professor: "; cin >> id; cin.ignore(); auto alunos = g.listarAlunosDoProfessor(id);
+        } else if (opcao == 5) {
+            int id; 
+            cout << "ID do professor: "; 
+            cin >> id; 
+            cin.ignore(); 
+            auto alunos = g.listarAlunosDoProfessor(id);
             cout << "\n===== ALUNOS DO PROFESSOR =====\n\n";
             if (alunos.empty()) cout << "Nenhum aluno ligado.\n"; else for (auto &a : alunos) cout << a << "\n";
-        } else if (op == 7) {
-            int id; cout << "ID do professor a editar: "; cin >> id; cin.ignore(); Professor *p = g.buscarProfessorPorId(id);
-            if (!p) { cout << "Professor nao encontrado.\n"; }
-            else {
-                cout << "Novo nome (enter para manter): "; string nn; getline(cin, nn); if (!nn.empty()) p->setNome(nn);
-                cout << "Novo telefone (enter para manter): "; string nt; getline(cin, nt); if (!nt.empty()) p->setTelefone(nt);
-                cout << "Nova especialidade (enter para manter): "; string ne; getline(cin, ne); if (!ne.empty()) p->setEspecialidade(ne);
+        } else if (opcao == 6) {
+            int id; 
+            cout << "ID do professor a editar: "; 
+            cin >> id; 
+            cin.ignore(); 
+            Professor *p = g.buscarProfessorPorId(id);
+            if (!p) { 
+                cout << "Professor nao encontrado.\n"; 
+            }else {
+                cout << "Novo nome (enter para manter): "; 
+                string novoNome; getline(cin, novoNome); if (!novoNome.empty()) p->setNome(novoNome);
+                cout << "Novo telefone (enter para manter): "; 
+                string novoTelefone; getline(cin, novoTelefone); if (!novoTelefone.empty()) p->setTelefone(novoTelefone);
+                cout << "Nova especialidade (enter para manter): "; 
+                string novaEspecialidade; getline(cin, novaEspecialidade); if (!novaEspecialidade.empty()) p->setEspecialidade(novaEspecialidade);
                 cout << "Professor atualizado.\n";
             }
-        } else if (op == 8) {
-            string nome; 
+        } else if (opcao == 7) {
+            string nomeAula; 
             int id; 
             cout << "Nome da aula: "; 
-            getline(cin, nome); 
+            getline(cin, nomeAula); 
             cout << "ID do professor (0 para nenhum): "; 
             cin >> id; 
             cin.ignore(); 
             Professor *p = nullptr; 
             if (id != 0) p = g.buscarProfessorPorId(id); 
             try { 
-                g.adicionarAula(std::make_shared<Aula>(nome, p)); 
+                g.adicionarAula(std::make_shared<Aula>(nomeAula, p)); 
                 cout << "Aula adicionada.\n"; 
             } catch (const exception &e) { 
                 cout << "Erro: " << e.what() << "\n"; 
             }
-        } else if (op == 9) {
-            string nome; 
+        } else if (opcao == 8) {
+            string nomeAula; 
             cout << "Nome da aula a remover: "; 
-            getline(cin, nome); 
+            getline(cin, nomeAula); 
             try { 
-                g.removerAula(nome); 
+                g.removerAula(nomeAula); 
                 cout << "Aula removida.\n"; 
             } catch (const exception &e) { 
                 cout << "Erro: " << e.what() << "\n"; 
@@ -223,8 +275,8 @@ void submenuProfessores(Gerenciador &g) {
 }
 
 void submenuAlunos(Gerenciador &g) {
-    int op = -1;
-    while (op != 0) {
+    int opcao = -1;
+    while (opcao != 0) {
         cout << "\n-- Gerenciar Alunos --\n";
         cout << "1. Adicionar aluno\n";
         cout << "2. Listar alunos\n";
@@ -232,37 +284,37 @@ void submenuAlunos(Gerenciador &g) {
         cout << "4. Matricular aluno em aula\n";
         cout << "5. Editar aluno\n";
         cout << "0. Voltar\n";
-        cout << "Opcao: "; cin >> op; cin.ignore();
-        if (op == 1) {
-            string nome, tel; 
+        cout << "Opcao: "; cin >> opcao; cin.ignore();
+        if (opcao == 1) {
+            string nome, telefone; 
             cout << "Nome: "; 
             getline(cin, nome); 
             cout << "Telefone: "; 
-            getline(cin, tel);
-            Aluno a(nome, tel);
+            getline(cin, telefone);
+            Aluno a(nome, telefone);
             // escolher plano
             cout << "Deseja atribuir um plano agora? (s/n): "; 
-            char r; 
-            cin >> r; 
+            char resposta; 
+            cin >> resposta; 
             cin.ignore();
-            if (r == 's' || r == 'S') {
+            if (resposta == 's' || resposta == 'S') {
                 g.listarPlanos();
                 cout << "Digite o ID do plano existente, 'novo' para criar ou 0 para nenhum: "; 
                 string escolha; 
                 getline(cin, escolha);
                 if (escolha == "novo") {
-                    string d; 
-                    string vs; 
-                    double v; 
+                    string descricao; 
+                    string valorString; 
+                    double valorDouble; 
                     cout << "Descricao: "; 
-                    getline(cin, d); 
+                    getline(cin, descricao); 
                     cout << "Valor: ";
-                    getline(cin, vs);
+                    getline(cin, valorString);
                     cout << "\n===== TREINOS DO ALUNO =====\n\n";
-                    v = parseDoubleFromString(vs);
-                    g.adicionarPlanoPersonalizado(d, v);
-                    auto p = g.buscarPlanoPorDescricao(d); 
-                    if (p) a.setPlano(p.get());
+                    valorDouble = parseDoubleFromString(valorString);
+                    g.adicionarPlanoPersonalizado(descricao, valorDouble);
+                    auto plano = g.buscarPlanoPorDescricao(descricao); 
+                    if (plano) a.setPlano(plano.get());
                 } else {
                     try {
                         int id = stoi(escolha);
@@ -270,17 +322,17 @@ void submenuAlunos(Gerenciador &g) {
                             cout << "Digite um ID válido.\n";
                          }
                         else {
-                            auto p = g.buscarPlanoPorId(id);
-                            if (p) {
-                                a.setPlano(p.get()); 
+                            auto plano = g.buscarPlanoPorId(id);
+                            if (plano) {
+                                a.setPlano(plano.get()); 
                             }else {
                                 cout << "Plano nao encontrado pelo ID.\n";
                             }
                         }
                     } catch (...) {
                         // tentar por descricao como fallback
-                        auto p = g.buscarPlanoPorDescricao(escolha); 
-                        if (p) a.setPlano(p.get()); else cout << "Plano nao encontrado.\n";
+                        auto plano = g.buscarPlanoPorDescricao(escolha); 
+                        if (plano) a.setPlano(plano.get()); else cout << "Plano nao encontrado.\n";
                     }
                 }
             }
@@ -290,82 +342,84 @@ void submenuAlunos(Gerenciador &g) {
             } catch (const std::exception &e) {
                 cout << "Erro ao adicionar aluno: " << e.what() << "\n";
             }
-        } else if (op == 2) { 
+        } else if (opcao == 2) { 
             g.listarAlunos(); 
-        }else if (op == 3) { 
-            int mat; 
+        }else if (opcao == 3) { 
+            int matricula; 
             cout << "Matricula: "; 
-            cin >> mat; 
+            cin >> matricula; 
             cin.ignore(); 
             try { 
-                g.removerAluno(mat); 
+                g.removerAluno(matricula); 
                 cout << "Removido.\n"; 
             } catch (const exception &e) { 
                 cout << "Erro: " << e.what() << "\n"; 
             } 
         }
-        else if (op == 4) {
-            int mat; 
+        else if (opcao == 4) {
+            int matricula; 
             string nomeAula; 
             cout << "Matricula: "; 
-            cin >> mat; 
+            cin >> matricula; 
             cin.ignore(); 
             cout << "Nome da aula: "; 
             getline(cin, nomeAula);
             try { 
-                g.matricularAlunoEmAula(mat, nomeAula); 
+                g.matricularAlunoEmAula(matricula, nomeAula); 
                 cout << "Aluno matriculado.\n"; 
             } catch (const exception &e) { 
                 cout << "Erro: " << e.what() << "\n"; 
             }
         }
-        else if (op == 5) {
-            int mat; 
+        else if (opcao == 5) {
+            int matricula; 
             cout << "Matricula do aluno a editar: "; 
-            cin >> mat; 
+            cin >> matricula; 
             cin.ignore(); 
-            Aluno *a = g.buscarAlunoPorMatricula(mat);
+            Aluno *a = g.buscarAlunoPorMatricula(matricula);
             if (!a) { 
                 cout << "Aluno nao encontrado.\n"; continue; 
             }
-            int eop = -1;
-            while (eop != 0) {
+            int editarOpcao = -1;
+            while (editarOpcao != 0) {
                 cout << "\n-- Editar Aluno (" << a->getMatricula() << ") --\n";
                 cout << "1. Mudar nome\n";
                 cout << "2. Mudar telefone\n";
                 cout << "3. Mudar plano\n";
                 cout << "4. Atribuir/Remover professor\n";
                 cout << "0. Voltar\n";
-                cout << "Opcao: "; cin >> eop; cin.ignore();
-                if (eop == 1) { 
-                    string nn; 
+                cout << "Opcao: ";
+                try { editarOpcao = readIntFromInput(); } catch (const ValidationError &e) { cout << "Erro: " << e.what() << "\n"; editarOpcao = -1; continue; }
+                if (editarOpcao == 1) { 
+                    string novoNome; 
                     cout << "Novo nome: "; 
-                    getline(cin, nn); 
-                    a->setNome(nn); 
+                    getline(cin, novoNome); 
+                    a->setNome(novoNome); 
                     cout << "Nome atualizado.\n"; 
-                }else if (eop == 2) { 
-                    string nt; 
+                }else if (editarOpcao == 2) { 
+                    string novoTelefone; 
                     cout << "Novo telefone: "; 
-                    getline(cin, nt); 
-                    a->setTelefone(nt); 
+                    getline(cin, novoTelefone); 
+                    a->setTelefone(novoTelefone); 
                     cout << "Telefone atualizado.\n"; 
-                }else if (eop == 3) {
+                }else if (editarOpcao == 3) {
                     g.listarPlanos(); 
-                    cout << "Digite o ID do plano existente, 'novo' para criar ou 0 para remover: "; string escolha; 
+                    cout << "Digite o ID do plano existente, 'novo' para criar ou 0 para remover: "; 
+                    string escolha; 
                     getline(cin, escolha);
                     if (escolha == "novo") {
-                        string d; 
-                        string vs; 
-                        double v; 
+                        string descricao; 
+                        string valorString;
+                        double valorDouble;
                         cout << "Descricao: "; 
-                        getline(cin, d); 
+                        getline(cin, descricao); 
                         cout << "Valor: "; 
-                        getline(cin, vs); 
-                        v = parseDoubleFromString(vs); 
-                        g.adicionarPlanoPersonalizado(d, v); 
-                        auto p = g.buscarPlanoPorDescricao(d); 
-                        if (p) { 
-                            a->setPlano(p.get()); 
+                        getline(cin, valorString); 
+                        valorDouble = parseDoubleFromString(valorString); 
+                        g.adicionarPlanoPersonalizado(descricao, valorDouble); 
+                        auto plano = g.buscarPlanoPorDescricao(descricao); 
+                        if (plano) { 
+                            a->setPlano(plano.get()); 
                             cout << "Plano atualizado.\n"; 
                         }
                     } else {
@@ -376,18 +430,18 @@ void submenuAlunos(Gerenciador &g) {
                                 cout << "Plano removido do aluno.\n"; 
                             }
                             else {
-                                auto p = g.buscarPlanoPorId(id);
-                                if (p) { 
-                                    a->setPlano(p.get()); 
+                                auto plano = g.buscarPlanoPorId(id);
+                                if (plano) { 
+                                    a->setPlano(plano.get()); 
                                     cout << "Plano atualizado.\n"; 
                                 } else {
                                     cout << "Plano nao encontrado pelo ID.\n";
                                 }
                             }
                         } catch (...) {
-                            auto p = g.buscarPlanoPorDescricao(escolha); 
-                            if (p) { 
-                                a->setPlano(p.get()); 
+                            auto plano = g.buscarPlanoPorDescricao(escolha); 
+                            if (plano) { 
+                                a->setPlano(plano.get()); 
                                 cout << "Plano atualizado.\n"; 
                             } else {
                                 cout << "Plano nao encontrado.\n";
@@ -395,7 +449,7 @@ void submenuAlunos(Gerenciador &g) {
                         }
                     }
                 }
-                else if (eop == 4) {
+                else if (editarOpcao == 4) {
                     cout << "Professores:\n"; 
                     g.listarProfessores(); 
                     cout << "Digite ID do professor para atribuir (0 para remover): "; 
@@ -407,10 +461,10 @@ void submenuAlunos(Gerenciador &g) {
                         cout << "Professor removido do aluno.\n"; 
                     }
                     else { 
-                        Professor *p = g.buscarProfessorPorId(id); 
-                        if (!p) cout << "Professor nao encontrado.\n"; 
+                        Professor *prof = g.buscarProfessorPorId(id); 
+                        if (!prof) cout << "Professor nao encontrado.\n"; 
                         else { 
-                            a->setProfessor(p); 
+                            a->setProfessor(prof); 
                             cout << "Professor atribuido.\n"; 
                         } 
                     }
@@ -421,44 +475,43 @@ void submenuAlunos(Gerenciador &g) {
 }
 
 void submenuEquipamentos(Gerenciador &g) {
-    int op = -1;
-    while (op != 0) {
+    int opcao = -1;
+    while (opcao != 0) {
         cout << "\n-- Gerenciar Equipamentos --\n";
         cout << "1. Adicionar equipamento\n";
         cout << "2. Listar equipamentos\n";
         cout << "3. Remover equipamento\n";
         cout << "4. Editar equipamento\n";
         cout << "0. Voltar\n";
-        cout << "Opcao: "; 
-        cin >> op; 
-        cin.ignore();
-        if (op == 1) { 
-            string nome; 
+                cout << "Opcao: ";
+                try { opcao = readIntFromInput(); } catch (const ValidationError &e) { cout << "Erro: " << e.what() << "\n"; opcao = -1; continue; }
+        if (opcao == 1) { 
+            string nomeEquipamento; 
             int qtd; 
             cout << "Nome: "; 
-            getline(cin, nome); 
+            getline(cin, nomeEquipamento); 
             cout << "Quantidade: "; 
             cin >> qtd; 
             cin.ignore(); 
-            g.adicionarEquipamento(Equipamento(nome, qtd)); 
-        }else if (op == 2) {
+            g.adicionarEquipamento(Equipamento(nomeEquipamento, qtd)); 
+        }else if (opcao == 2) {
             g.listarEquipamentos();
-        } else if (op == 3) { 
-            string nome; 
+        } else if (opcao == 3) { 
+            string nomeEquipamento; 
             cout << "Nome do equipamento: "; 
-            getline(cin, nome); 
+            getline(cin, nomeEquipamento); 
             try { 
-                g.removerEquipamento(nome); 
+                g.removerEquipamento(nomeEquipamento); 
                 cout << "Removido.\n"; 
             } catch (const exception &e) { 
                 cout << "Erro: " << e.what() << "\n"; 
             } 
         }
-        else if (op == 4) {
-            string nome; 
+        else if (opcao == 4) {
+            string nomeEquipamento; 
             cout << "Nome do equipamento a editar: "; 
-            getline(cin, nome);
-            Equipamento *e = g.buscarEquipamentoPorNome(nome);
+            getline(cin, nomeEquipamento);
+            Equipamento *e = g.buscarEquipamentoPorNome(nomeEquipamento);
             if (!e) { 
                 cout << "Equipamento nao encontrado.\n"; 
             }
@@ -484,50 +537,50 @@ void submenuEquipamentos(Gerenciador &g) {
 }
 
 void submenuTreinos(Gerenciador &g) {
-    int op = -1;
-    while (op != 0) {
+    int opcao = -1;
+    while (opcao != 0) {
         cout << "\n-- Gerenciar Treinos --\n";
         cout << "1. Adicionar treino a aluno\n";
         cout << "2. Listar treinos de um aluno\n";
         cout << "3. Editar treino de um aluno\n";
         cout << "0. Voltar\n";
-        cout << "Opcao: "; 
-        cin >> op; 
-        cin.ignore();
-        if (op == 1) {
-            int mat; 
+    cout << "Opcao: ";
+    try { opcao = readIntFromInput(); } catch (const ValidationError &e) { cout << "Erro: " << e.what() << "\n"; opcao = -1; continue; }
+        if (opcao == 1) {
+            int matricula; 
             cout << "Matricula: "; 
-            cin >> mat; 
+            cin >> matricula; 
             cin.ignore(); 
-            Aluno *a = g.buscarAlunoPorMatricula(mat);
+            Aluno *a = g.buscarAlunoPorMatricula(matricula);
             if (!a) { 
                 cout << "Aluno nao encontrado.\n"; 
                 continue; 
             }
-            string nome, data; 
+            string nomeTreino, data; 
             cout << "Nome do treino: "; 
-            getline(cin, nome); 
+            getline(cin, nomeTreino); 
             cout << "Data: "; 
             getline(cin, data);
-            Treino t(nome, data);
+            Treino t(nomeTreino, data);
             cout << "Adicionar equipamento? (s/n): "; 
             char resposta; 
             cin >> resposta; 
             cin.ignore(); 
             while (resposta =='s'||resposta=='S') {
-                 string en; int q; 
+                 string equipamentoNome; 
+                 int quantidade; 
                  cout << "Nome eq: "; 
-                 getline(cin, en); 
+                 getline(cin, equipamentoNome); 
                  cout << "Qtd: "; 
-                 cin >> q; 
-                 cin.ignore(); t += Equipamento(en,q); 
+                 cin >> quantidade; 
+                 cin.ignore(); t += Equipamento(equipamentoNome,quantidade); 
                  cout << "Mais? (s/n): "; 
                  cin >> resposta; 
                  cin.ignore(); 
                 }
             a->adicionarTreino(t);
             cout << "Treino adicionado.\n";
-        } else if (op == 2) {
+        } else if (opcao == 2) {
             int matricula; 
             cout << "Matricula: "; 
             cin >> matricula; 
@@ -540,12 +593,14 @@ void submenuTreinos(Gerenciador &g) {
             const auto &tr = a->getTreinos(); 
             if (tr.empty()) {
                 cout << "Nenhum treino.\n";
-            }else { 
-                for (const auto &t : tr) { 
-                    cout << t.getNome() << " | " << t.getData() << "\n"; 
-                } 
+            } else {
+                cout << "\n===== TREINOS DO ALUNO =====\n\n";
+                for (const auto &t : tr) {
+                    // imprime nome, data e equipamentos com quantidades via operator<< de Treino
+                    cout << t << "\n";
+                }
             }
-        } else if (op == 3) {
+        } else if (opcao == 3) {
                 int matricula; 
                 cout << "Matricula: "; 
                 cin >> matricula; 
@@ -652,7 +707,8 @@ int main() {
         cout << "5. Gerenciar Equipamentos\n";
         cout << "6. Gerenciar Treinos\n";
         cout << "0. Sair\n";
-        cout << "Escolha: "; cin >> opcao; cin.ignore();
+    cout << "Escolha: ";
+    try { opcao = readIntFromInput(); } catch (const ValidationError &e) { cout << "Erro: " << e.what() << "\n"; opcao = -1; continue; }
         if (opcao == 1) submenuAcademia(g);
         else if (opcao == 2) submenuAlunos(g);
         else if (opcao == 3) submenuProfessores(g);

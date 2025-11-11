@@ -12,15 +12,17 @@
 #include <iostream>
 
 void Gerenciador::adicionarAluno(const Aluno &a) {
-    // copia para possível ajuste de matricula
+    // copia para ajustar de matricula
     Aluno copy = a;
-    // checar limite de alunos, se configurado (>0)
+    // checar limite de alunos da academiua, caso seja maior que 0
     if (maxAlunos > 0 && (int)alunos.size() >= maxAlunos) {
         throw LimiteExcedido("Limite de alunos excedido na academia");
     }
     if (copy.getMatricula() == 0) copy.setMatricula(nextAlunoMatricula++);
     // verifica se matricula já existe
-    auto it = std::find_if(alunos.begin(), alunos.end(), [&](const Aluno &x) { return x.getMatricula() == copy.getMatricula(); });
+    auto it = std::find_if(alunos.begin(), alunos.end(), [&](const Aluno &x) { 
+        return x.getMatricula() == copy.getMatricula(); 
+    });
     if (it != alunos.end()) throw DuplicateEntry("Aluno ja cadastrado (matricula)");
     alunos.push_back(copy);
 }
@@ -158,12 +160,13 @@ std::shared_ptr<Aula> Gerenciador::buscarAulaPorNome(const std::string &nome) co
     return nullptr;
 }
 
-void Gerenciador::atribuirProfessorAAula(int idProfessor, const std::string &nomeAula) {
+std::shared_ptr<Aula> Gerenciador::atribuirProfessorAAula(int idProfessor, const std::string &nomeAula) {
     auto aula = buscarAulaPorNome(nomeAula);
     if (!aula) throw NotFound("Aula nao encontrada");
     auto it = std::find_if(professores.begin(), professores.end(), [&](const Professor &p) { return p.getId() == idProfessor; });
     if (it == professores.end()) throw NotFound("Professor nao encontrado");
     aula->setProfessor(&(*it));
+    return aula;
 }
 
 void Gerenciador::removerEquipamento(const std::string &nome) {
