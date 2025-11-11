@@ -1,33 +1,32 @@
 #include "../header/Plano.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 
-Plano::Plano() : nome(""), precoBase(0.0), descricao("") {}
+Plano::Plano(const std::string &descricao, double valor) : descricao(descricao), valor(valor) {}
 
-Plano::Plano(const std::string &nome, double precoBase,
-             const std::string &descricao)
-    : nome(nome), precoBase(precoBase), descricao(descricao) {}
-
-void Plano::setNome(const std::string &nome) { this->nome = nome; }
-
-std::string Plano::getNome() const { return nome; }
-
-void Plano::setPrecoBase(double preco) { this->precoBase = preco; }
-
-double Plano::getPrecoBase() const { return precoBase; }
-
-void Plano::setDescricao(const std::string &descricao) {
-  this->descricao = descricao;
-}
+Plano::~Plano() = default;
 
 std::string Plano::getDescricao() const { return descricao; }
 
-PlanoMensal::PlanoMensal(const std::string &nome, double precoBase,
-                         const std::string &descricao)
-    : Plano(nome, precoBase, descricao) {}
+void Plano::setDescricao(const std::string &d) { descricao = d; }
 
-double PlanoMensal::calcularPrecoFinal() const { return precoBase; }
+void Plano::setValor(double v) { valor = v; }
 
-PlanoAnual::PlanoAnual(const std::string &nome, double precoBase,
-                       const std::string &descricao)
-    : Plano(nome, precoBase, descricao) {}
+int Plano::getId() const { return id; }
 
-double PlanoAnual::calcularPrecoFinal() const { return precoBase * 12 * 0.9; }
+void Plano::setId(int i) { id = i; }
+
+std::string converterMoeda(double valor){
+	std::ostringstream oss;
+	oss << "R$" << std::fixed << std::setprecision(2) << valor;
+	return oss.str();
+}
+
+std::ostream &operator<<(std::ostream &os, const Plano &p) {
+	os << "ID:" << p.getId() << " | Descricao: " << p.getDescricao() << " | Valor estimado: R$ " << p.calcularValor();
+	return os;
+}
+
+
+

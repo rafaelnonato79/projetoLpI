@@ -1,53 +1,49 @@
 #include "../header/Treino.h"
+#include "../header/Equipamento.h"
+#include <algorithm>
 
-Treino::Treino() : nome(""), modalidade(nullptr) {}
-
-Treino::Treino(const std::string &nome, std::vector<Exercicio *> exercicios,
-               Modalidade *modalidade)
-    : nome(nome), exercicios(exercicios), modalidade(modalidade) {}
-
-void Treino::setNome(const std::string &nome) { this->nome = nome; }
+Treino::Treino(const std::string &nome, const std::string &data) : nome(nome), data(data) {}
 
 std::string Treino::getNome() const { return nome; }
 
-void Treino::setExercicios(const std::vector<Exercicio *> &exercicios) {
-  this->exercicios = exercicios;
+std::string Treino::getData() const { return data; }
+
+void Treino::adicionarEquipamento(const Equipamento &e) { equipamentos.push_back(e); }
+
+const std::vector<Equipamento> &Treino::getEquipamentos() const { return equipamentos; }
+
+Treino &Treino::operator+=(const Equipamento &e) {
+    equipamentos.push_back(e);
+    return *this;
 }
 
-const std::vector<Exercicio *> &Treino::getExercicios() const {
-  return exercicios;
+void Treino::setNome(const std::string &n) { nome = n; }
+
+void Treino::setData(const std::string &d) { data = d; }
+
+bool Treino::removerEquipamentoPorNome(const std::string &nome) {
+    auto it = std::remove_if(equipamentos.begin(), equipamentos.end(), [&](const Equipamento &e) { return e.getNome() == nome; });
+    if (it == equipamentos.end()) return false;
+    equipamentos.erase(it, equipamentos.end());
+    return true;
 }
 
-void Treino::setModalidade(Modalidade *modalidade) {
-  this->modalidade = modalidade;
-}
-
-Modalidade *Treino::getModalidade() const { return modalidade; }
-
-bool Treino::deletarTreino(std::vector<Treino *> &treinos,
-                           const std::string &nome) {
-  for (auto it = treinos.begin(); it != treinos.end(); ++it) {
-    if ((*it)->getNome() == nome) {
-      delete *it;
-      treinos.erase(it);
-      return true;
+bool Treino::editarQuantidadeEquipamento(const std::string &nome, int novaQuantidade) {
+    for (auto &e : equipamentos) {
+        if (e.getNome() == nome) { e.setQuantidade(novaQuantidade); return true; }
     }
-  }
-  return false;
+    return false;
 }
 
-bool Treino::atualizarTreino(std::vector<Treino *> &treinos,
-                             const std::string &nome,
-                             const std::string &novoNome,
-                             std::vector<Exercicio *> exercicios,
-                             Modalidade *modalidade) {
-  for (auto &treino : treinos) {
-    if (treino->getNome() == nome) {
-      treino->setNome(novoNome);
-      treino->setExercicios(exercicios);
-      treino->setModalidade(modalidade);
-      return true;
+std::ostream &operator<<(std::ostream &os, const Treino &t) {
+    os << t.getNome() << " | " << t.getData();
+    const auto &eqs = t.getEquipamentos();
+    if (!eqs.empty()) {
+        os << " | Equipamentos: ";
+        for (size_t i = 0; i < eqs.size(); ++i) {
+            os << eqs[i];
+            if (i + 1 < eqs.size()) os << ", ";
+        }
     }
-  }
-  return false;
+    return os;
 }

@@ -1,49 +1,49 @@
 #include "../header/Aluno.h"
-#include "../header/MesmoIdExcecao.h"
+#include "../header/Plano.h"
+#include "../header/Treino.h"
+#include "../header/Professor.h"
+#include <algorithm>
 
-using namespace std;
+Aluno::Aluno(int matricula, const std::string &nome, const std::string &telefone)
+    : Pessoa(matricula, nome, telefone), matricula(matricula) {}
 
-Aluno::Aluno() : treinador(nullptr), treino(nullptr) {}
+Aluno::Aluno(const std::string &nome, const std::string &telefone)
+    : Pessoa(0, nome, telefone), matricula(0) {}
 
-Aluno::Aluno(const string &nome, Treinador *treinador, Treino *treino) {
-  setNome(nome);
-  this->treinador = treinador;
-  this->treino = treino;
+int Aluno::getMatricula() const { return matricula; }
+
+void Aluno::setPlano(Plano *p) { plano = p; }
+
+Plano *Aluno::getPlano() const { return plano; }
+
+void Aluno::adicionarTreino(const Treino &t) { treinos.push_back(t); }
+
+const std::vector<Treino> &Aluno::getTreinos() const { return treinos; }
+
+bool Aluno::operator==(const Aluno &o) const { return matricula == o.matricula; }
+
+bool Aluno::operator<(const Aluno &o) const { return nome < o.nome; }
+
+void Aluno::exibir(std::ostream &os) const {
+    Pessoa::exibir(os);
+    os << " | Matricula: " << matricula;
+    if (plano) os << " | Plano: " << plano->getDescricao();
+    if (professor) os << " | Professor: " << professor->getNome();
 }
 
-void Aluno::Pessoa::setNome(const std::string &nome) {
-  this->Pessoa::setNome(nome);
+void Aluno::matricularEmAula(const std::string &nomeAula) {
+    aulasInscritas.push_back(nomeAula);
 }
 
-std::string Aluno::Pessoa::getNome() const { return this->Pessoa::getNome(); }
+const std::vector<std::string> &Aluno::getAulasInscritas() const { return aulasInscritas; }
 
-bool Aluno::deletarAluno(vector<Aluno *> &alunos, const string &nome) {
-  for (auto it = alunos.begin(); it != alunos.end(); ++it) {
-    if ((*it)->getNome() == nome) {
-      delete *it;
-      alunos.erase(it);
-      return true;
-    }
-  }
-  return false;
-}
+void Aluno::setProfessor(Professor *p) { professor = p; }
 
-bool Aluno::atualizarAluno(vector<Aluno *> &alunos, const string &nome,
-                           const string &novoNome, Treinador *treinador,
-                           Treino *treino) {
+Professor *Aluno::getProfessor() const { return professor; }
 
-  for (const auto &aluno : alunos) {
-    if (aluno->getNome() == novoNome && aluno->getNome() != nome) {
-      throw MesmoIdExcecao("Já existe um aluno com esse nome.");
-    }
-  }
-  for (auto &aluno : alunos) {
-    if (aluno->getNome() == nome) {
-      aluno->setNome(novoNome);
-      aluno->treinador = treinador;
-      aluno->treino = treino;
-      return true;
-    }
-  }
-  return false;
+void Aluno::setMatricula(int m) { matricula = m; Pessoa::setId(m); }
+
+std::ostream &operator<<(std::ostream &os, const Aluno &a) {
+    a.exibir(os);
+    return os;
 }
