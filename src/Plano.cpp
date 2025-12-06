@@ -5,7 +5,7 @@
 
 Plano::Plano(const std::string &descricao, double valor) : descricao(descricao), valor(valor) {}
 
-Plano::~Plano() = default;
+Plano::~Plano() {}
 
 std::string Plano::getDescricao() const { return descricao; }
 

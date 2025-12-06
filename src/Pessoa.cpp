@@ -3,7 +3,7 @@
 Pessoa::Pessoa(int id, const std::string &nome, const std::string &telefone)
     : id(id), nome(nome), telefone(telefone) {}
 
-Pessoa::~Pessoa() = default;
+Pessoa::~Pessoa() {}
 
 int Pessoa::getId() const { return id; }
 

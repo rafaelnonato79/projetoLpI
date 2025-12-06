@@ -94,7 +94,7 @@ void Gerenciador::listarPlanos() const {
 }
 
 void Gerenciador::adicionarPlanoPersonalizado(const std::string &descricao, double valor) {
-    auto p = std::make_shared<PlanoPersonalizado>(valor, descricao);
+    auto p = std::make_shared<PlanoPersonalizado>(descricao, valor);
     if (p->getId() == 0) p->setId(nextPlanoId++);
     planos.push_back(p);
 }

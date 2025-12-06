@@ -1,5 +1,9 @@
 #include "../header/PlanoPersonalizado.h"
 
-PlanoPersonalizado::PlanoPersonalizado(double valor, const std::string &descricao) : Plano(descricao, valor) {}
+PlanoPersonalizado::PlanoPersonalizado(const std::string &descricao, double valor) : Plano(descricao, valor) {}
 
-double PlanoPersonalizado::calcularValor() const { return valor; }
+int PlanoPersonalizado::getId() const { return id; }
+
+void PlanoPersonalizado::setId(int i) { id = i; }
+
+double PlanoPersonalizado::calcularValor() const { return Plano::valor; }
