@@ -1,0 +1,9 @@
+1;a;1
+2;b;2
+3;doidona;100000
+4;c;10
+5;gigante;10
+6;boiola;10000
+7;aoisdoi;10000
+8;alksdjkalwklasjdlkasl;10000
+9;asdasdasdasdyhao9iuw;1231231

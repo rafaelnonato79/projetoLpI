@@ -9,6 +9,7 @@ private:
   std::string telefone;
 
 public:
+  Pessoa();
   Pessoa(int id, const std::string &nome, const std::string &telefone);
 
   int getId() const;

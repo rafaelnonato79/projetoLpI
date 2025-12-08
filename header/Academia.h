@@ -2,22 +2,28 @@
 #define ACADEMIA_H
 
 #include "Aluno.h"
+#include "Filial.h"
 #include "Plano.h"
 #include "Treinador.h"
 #include "Treino.h"
 #include <string>
 #include <vector>
 
-class Academia {
+class Academia : public IFilePersistable {
+
+  size_t id;
+  static size_t nextId;
   std::string nome;
   size_t maxAlunos;
   std::vector<Treinador *> treinadores;
   std::vector<Aluno *> alunos;
   std::vector<Treino *> treinos;
   std::vector<Plano *> planos;
-
+  std::vector<Filial> filiais; // Each academia can have multiple filiais
 public:
   Academia();
+
+  Academia(const std::string &nome, size_t maxAlunos);
   Academia(const std::string &nome, size_t maxAlunos,
            const std::vector<Treinador *> &treinadores,
            const std::vector<Aluno *> &alunos,
@@ -29,6 +35,9 @@ public:
                    const std::vector<Aluno *> &alunos,
                    const std::vector<Treino *> &treinos,
                    const std::vector<Plano *> &planos);
+
+  size_t getId() const;
+  void setId(size_t id);
 
   std::string getNome() const;
   void setNome(const std::string &nome);
@@ -50,6 +59,14 @@ public:
   Aluno *buscarAluno(const std::string &nome) const;
   Treino *buscarTreino(const std::string &nome) const;
   Plano *buscarPlano(const std::string &nome) const;
+
+  void adicionarFilial(const Filial &f);
+  void removerFilial(size_t filialId);
+  Filial *buscarFilialPorId(size_t filialId);
+  const std::vector<Filial> &getFiliais() const;
+
+  std::string toFileString() const;
+  bool fromFileString(const std::string &line);
 };
 
 #endif

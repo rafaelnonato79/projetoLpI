@@ -1,0 +1,6 @@
+1;1;oi;candelaria
+2;140735683224831;gigante;Principal
+3;9223372036854775814;Principal;Endereco Principal
+4;9223372036854775814;aoisdoi;candelaria 2
+5;0;alksdjkalwklasjdlkasl;la
+6;9;asdasdasdasdyhao9iuw;alskdhalskdaksl

@@ -1,4 +1,5 @@
 #pragma once
+#include "Filial.h"
 #include "Pessoa.h"
 #include "Plano.h"
 #include "Professor.h"
@@ -7,15 +8,17 @@
 #include <string>
 #include <vector>
 
-class Aluno : public Pessoa {
+class Aluno : public Pessoa, public IFilePersistable {
 private:
   int matricula;
   Plano *plano = nullptr;
   Professor *professor = nullptr;
+  Filial *filial = nullptr;
   std::vector<Treino> treinos;
   std::vector<std::string> aulasInscritas;
 
 public:
+  Aluno(); // Default constructor needed for file operations
   Aluno(int matricula, const std::string &nome, const std::string &telefone);
   Aluno(const std::string &nome, const std::string &telefone);
 
@@ -34,10 +37,16 @@ public:
   void setProfessor(Professor *p);
   Professor *getProfessor() const;
 
+  void setFilial(Filial *f); // Link aluno to one filial
+  Filial *getFilial() const; // Get linked filial
+
   bool operator==(const Aluno &o) const;
   bool operator<(const Aluno &o) const;
 
-  void exibir(std::ostream &os) const;
+  void exibir(std::ostream &os) const override;
+
+  std::string toFileString() const override;
+  bool fromFileString(const std::string &line) override;
 
   friend std::ostream &operator<<(std::ostream &os, const Aluno &a);
 };

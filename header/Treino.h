@@ -1,10 +1,11 @@
 #pragma once
 #include "Equipamento.h"
+#include "IFilePersistable.h"
 #include <ostream>
 #include <string>
 #include <vector>
 
-class Treino {
+class Treino : public IFilePersistable {
 private:
   std::string nome;
   std::string data;
@@ -26,6 +27,9 @@ public:
 
   bool removerEquipamentoPorNome(const std::string &nome);
   bool editarQuantidadeEquipamento(const std::string &nome, int novaQuantidade);
+
+  std::string toFileString() const override;
+  bool fromFileString(const std::string &line) override;
 
   friend std::ostream &operator<<(std::ostream &os, const Treino &t);
 };

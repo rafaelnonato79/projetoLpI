@@ -3,34 +3,32 @@
 #include "../header/Aula.h"
 #include "../header/Equipamento.h"
 #include "../header/Exceptions.h"
-#include "../header/LimiteExcedido.h"
 #include "../header/Plano.h"
 #include "../header/PlanoPersonalizado.h"
 #include "../header/Professor.h"
 #include <algorithm>
 #include <iostream>
-#include <stdexcept>
 
-void Gerenciador::adicionarAluno(const Aluno &a) {
-  // copia para ajustar de matricula
+void Gerenciador::adicionarAluno(const Aluno &a, Filial *filial) {
   Aluno copy = a;
-  // checar limite de alunos da academiua, caso seja maior que 0
-  if (maxAlunos > 0 && (int)alunos.size() >= maxAlunos) {
-    throw LimiteExcedido("Limite de alunos excedido na academia");
+  if (filial && filial->getId() > 0) {
   }
   if (copy.getMatricula() == 0)
     copy.setMatricula(nextAlunoMatricula++);
-  // verifica se matricula já existe
   auto it = std::find_if(alunos.begin(), alunos.end(), [&](const Aluno &x) {
     return x.getMatricula() == copy.getMatricula();
   });
   if (it != alunos.end())
     throw DuplicateEntry("Aluno ja cadastrado (matricula)");
+  copy.setFilial(filial); // link aluno to filial
   alunos.push_back(copy);
+  Gerenciador::salvarObjetoEmArquivo(copy, "alunos.txt");
 }
 
 void Gerenciador::listarAlunos() const {
   std::cout << "\n===== LISTA DE ALUNOS =====\n\n";
+  std::vector<Aluno> alunosArquivo;
+  Gerenciador::carregarObjetosDeArquivo("alunos.txt", alunosArquivo);
   if (alunos.empty()) {
     std::cout << "Nenhum aluno cadastrado.\n";
     return;
@@ -40,19 +38,27 @@ void Gerenciador::listarAlunos() const {
 }
 
 Aluno *Gerenciador::buscarAlunoPorMatricula(int matricula) {
-  for (auto &a : alunos)
+  std::vector<Aluno> alunosArquivo;
+  Gerenciador::carregarObjetosDeArquivo("alunos.txt", alunosArquivo);
+  for (auto &a : alunosArquivo)
     if (a.getMatricula() == matricula)
       return &a;
   return nullptr;
 }
 
 void Gerenciador::removerAluno(int matricula) {
-  auto it = std::remove_if(alunos.begin(), alunos.end(), [&](const Aluno &a) {
-    return a.getMatricula() == matricula;
-  });
-  if (it == alunos.end())
+  std::vector<Aluno> alunosArquivo;
+  Gerenciador::carregarObjetosDeArquivo("alunos.txt", alunosArquivo);
+  auto it = std::remove_if(
+      alunosArquivo.begin(), alunosArquivo.end(),
+      [&](const Aluno &a) { return a.getMatricula() == matricula; });
+  if (it == alunosArquivo.end())
     throw NotFound("Aluno nao encontrado");
-  alunos.erase(it, alunos.end());
+  alunosArquivo.erase(it, alunosArquivo.end());
+  std::ofstream file("bin/alunos.txt", std::ios::trunc);
+  for (const auto &a : alunosArquivo) {
+    file << a.toFileString() << std::endl;
+  }
 }
 
 void Gerenciador::matricularAlunoEmAula(int matricula,
@@ -308,4 +314,202 @@ std::vector<Aluno> Gerenciador::listarAlunosDoProfessor(int id) const {
     }
   }
   return res;
+}
+
+void Gerenciador::criarAcademia(Academia &a, Filial &filialPrincipal) {
+  std::vector<Academia> academiasArquivo;
+  Gerenciador::carregarObjetosDeArquivo("academias.txt", academiasArquivo);
+  size_t nextAcademiaId = 1;
+  for (const auto &academia : academiasArquivo) {
+    if (academia.getId() >= nextAcademiaId)
+      nextAcademiaId = academia.getId() + 1;
+  }
+  Academia copy = a;
+  copy.setId(nextAcademiaId);
+
+  Gerenciador::salvarObjetoEmArquivo(copy, "academias.txt");
+
+  Filial filialCopy = filialPrincipal;
+  filialCopy.setAcademiaId(nextAcademiaId);
+  adicionarFilial(filialCopy, nextAcademiaId);
+
+  academias.emplace_back(copy);
+}
+
+Academia *Gerenciador::buscarAcademiaPorNome(const std::string &nome) {
+  for (auto &a : academias)
+    if (a.getNome() == nome)
+      return &a;
+  return nullptr;
+}
+
+void Gerenciador::atualizarAcademia(size_t id, const std::string &novoNome,
+                                    size_t novoMaxAlunos) {
+  Academia *a = buscarAcademiaPorId(id);
+  if (a) {
+    a->setNome(novoNome);
+    a->setMaxAlunos(novoMaxAlunos);
+  }
+}
+
+void Gerenciador::removerAcademia(const std::string &nome) {
+  auto it =
+      std::remove_if(academias.begin(), academias.end(),
+                     [&](const Academia &a) { return a.getNome() == nome; });
+  if (it != academias.end())
+    academias.erase(it, academias.end());
+
+  // Remover do arquivo
+  std::vector<Academia> academiasArquivo;
+  Gerenciador::carregarObjetosDeArquivo("academias.txt", academiasArquivo);
+  academiasArquivo.erase(
+      std::remove_if(academiasArquivo.begin(), academiasArquivo.end(),
+                     [&](const Academia &a) { return a.getNome() == nome; }),
+      academiasArquivo.end());
+  std::ofstream file("bin/academias.txt", std::ios::trunc);
+  for (const auto &a : academiasArquivo) {
+    file << a.toFileString() << std::endl;
+  }
+}
+
+const std::vector<Academia> &Gerenciador::getAcademias() const {
+  return academias;
+}
+void Gerenciador::listarAcademias() const {
+  std::cout << "\n===== LISTA DE ACADEMIAS =====\n\n";
+  std::vector<Academia> academiasArquivo;
+  Gerenciador::carregarObjetosDeArquivo("academias.txt", academiasArquivo);
+  if (academiasArquivo.empty()) {
+    std::cout << "Nenhuma academia cadastrada.\n";
+    return;
+  }
+  for (const auto &a : academiasArquivo)
+    std::cout << "Id: " << a.getId() << " | Nome da academia: " << a.getNome()
+              << " | Max Alunos: " << a.getMaxAlunos() << "\n";
+}
+
+Academia *Gerenciador::buscarAcademiaPorId(size_t id) {
+  for (auto &a : academias)
+    if (a.getId() == id)
+      return &a;
+  return nullptr;
+}
+
+void Gerenciador::adicionarAvaliacao(const Avaliacao &a) {
+  avaliacoes.push_back(a);
+}
+
+void Gerenciador::listarAvaliacoes() const {
+  std::cout << "\n===== LISTA DE AVALIACOES =====\n\n";
+  if (avaliacoes.empty()) {
+    std::cout << "Nenhuma avaliacao cadastrada.\n";
+    return;
+  }
+  for (const auto &a : avaliacoes)
+    std::cout << "ID: " << a.getId() << " | Aluno: " << a.getAlunoMatricula()
+              << " | Alvo: " << a.getAlvo() << " | Nota: " << a.getNota()
+              << " | Comentario: " << a.getComentario() << "\n";
+}
+
+Avaliacao *Gerenciador::buscarAvaliacaoPorId(size_t id) {
+  for (auto &a : avaliacoes)
+    if (a.getId() == id)
+      return &a;
+  return nullptr;
+}
+
+void Gerenciador::removerAvaliacao(size_t id) {
+  auto it = std::remove_if(avaliacoes.begin(), avaliacoes.end(),
+                           [&](const Avaliacao &a) { return a.getId() == id; });
+  if (it != avaliacoes.end())
+    avaliacoes.erase(it, avaliacoes.end());
+}
+
+void Gerenciador::atualizarAvaliacao(size_t id, int novaNota,
+                                     const std::string &novoComentario) {
+  Avaliacao *a = buscarAvaliacaoPorId(id);
+  if (a) {
+    a->setNota(novaNota);
+    a->setComentario(novoComentario);
+  }
+}
+
+void Gerenciador::adicionarFilial(const Filial &f, size_t academiaId) {
+  // Find the biggest filial id in filiais.txt
+  std::vector<Filial> filiaisArquivo;
+  Gerenciador::carregarObjetosDeArquivo("filiais.txt", filiaisArquivo);
+  size_t nextFilialId = 1;
+  for (const auto &filial : filiaisArquivo) {
+    if (filial.getId() >= nextFilialId)
+      nextFilialId = filial.getId() + 1;
+  }
+  Filial filialCopy = f;
+  filialCopy.setId(nextFilialId);
+  filialCopy.setAcademiaId(academiaId);
+  Gerenciador::salvarObjetoEmArquivo(filialCopy, "filiais.txt");
+  for (auto &a : academias) {
+    if (a.getId() == academiaId) {
+      a.adicionarFilial(filialCopy);
+      break;
+    }
+  }
+}
+
+void Gerenciador::listarFiliais(size_t academiaId) const {
+  std::vector<Filial> filiaisArquivo;
+  Gerenciador::carregarObjetosDeArquivo("filiais.txt", filiaisArquivo);
+  std::cout << "\n===== LISTA DE FILIAIS =====\n";
+  bool found = false;
+  for (const auto &f : filiaisArquivo) {
+    if (f.getAcademiaId() == academiaId) {
+      std::cout << "Id: " << f.getId() << " | Nome: " << f.getNome()
+                << " | Endereco: " << f.getEndereco() << "\n";
+      found = true;
+    }
+  }
+  if (!found) {
+    std::cout << "Nenhuma filial encontrada para essa academia.\n";
+  }
+}
+
+Filial *Gerenciador::buscarFilialPorId(size_t academiaId, size_t filialId) {
+  std::vector<Filial> filiaisArquivo;
+  Gerenciador::carregarObjetosDeArquivo("filiais.txt", filiaisArquivo);
+  for (auto &f : filiaisArquivo) {
+    if (f.getAcademiaId() == academiaId && f.getId() == filialId)
+      return &f;
+  }
+  return nullptr;
+}
+
+void Gerenciador::removerFilial(size_t academiaId, size_t filialId) {
+  std::vector<Filial> filiaisArquivo;
+  Gerenciador::carregarObjetosDeArquivo("filiais.txt", filiaisArquivo);
+  auto it = std::remove_if(
+      filiaisArquivo.begin(), filiaisArquivo.end(), [&](const Filial &f) {
+        return f.getAcademiaId() == academiaId && f.getId() == filialId;
+      });
+  filiaisArquivo.erase(it, filiaisArquivo.end());
+  std::ofstream file("bin/filiais.txt", std::ios::trunc);
+  for (const auto &f : filiaisArquivo) {
+    file << f.toFileString() << std::endl;
+  }
+}
+
+void Gerenciador::atualizarFilial(size_t academiaId, size_t filialId,
+                                  const std::string &novoNome,
+                                  const std::string &novoEndereco) {
+  std::vector<Filial> filiaisArquivo;
+  Gerenciador::carregarObjetosDeArquivo("filiais.txt", filiaisArquivo);
+  for (auto &f : filiaisArquivo) {
+    if (f.getAcademiaId() == academiaId && f.getId() == filialId) {
+      f.setNome(novoNome);
+      f.setEndereco(novoEndereco);
+      break;
+    }
+  }
+  std::ofstream file("bin/filiais.txt", std::ios::trunc);
+  for (const auto &f : filiaisArquivo) {
+    file << f.toFileString() << std::endl;
+  }
 }
