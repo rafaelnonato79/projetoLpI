@@ -14,9 +14,9 @@ void Plano::setDescricao(const std::string &d) { descricao = d; }
 
 void Plano::setValor(double v) { valor = v; }
 
-int Plano::getId() const { return id; }
+size_t Plano::getId() const { return id; }
 
-void Plano::setId(int i) { id = i; }
+void Plano::setId(size_t i) { id = i; }
 
 std::string converterMoeda(double valor) {
   std::ostringstream oss;

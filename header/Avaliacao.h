@@ -16,6 +16,7 @@ public:
             const std::string &comentario);
 
   size_t getId() const override;
+  void setId(size_t i) override;
   int getAlunoMatricula() const;
   std::string getAlvo() const;
   int getNota() const;

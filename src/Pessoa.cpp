@@ -7,9 +7,9 @@ Pessoa::Pessoa() : id(0), nome(""), telefone("") {}
 
 Pessoa::~Pessoa() {}
 
-int Pessoa::getId() const { return id; }
+size_t Pessoa::getId() const { return id; }
 
-void Pessoa::setId(int novo) { id = novo; }
+void Pessoa::setId(size_t novo) { id = novo; }
 
 std::string Pessoa::getNome() const { return nome; }
 

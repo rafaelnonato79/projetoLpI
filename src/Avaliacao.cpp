@@ -8,6 +8,7 @@ Avaliacao::Avaliacao(int alunoMatricula, const std::string &alvo, int nota,
       comentario(comentario) {}
 
 size_t Avaliacao::getId() const { return id; }
+void Avaliacao::setId(size_t i) { id = i; }
 
 int Avaliacao::getAlunoMatricula() const { return alunoMatricula; }
 
