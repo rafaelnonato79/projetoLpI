@@ -1,8 +1,9 @@
 #pragma once
+#include "IIndentificavel.h"
 #include <ostream>
 #include <string>
 
-class Equipamento {
+class Equipamento : public IIdentificavel {
 private:
   int id;
   std::string nome;
@@ -13,9 +14,9 @@ public:
 
   std::string getNome() const;
   int getQuantidade() const;
-  int getId() const;
+  size_t getId() const override;
 
-  void setId(int i);
+  void setId(size_t i) override;
   void setQuantidade(int q);
   void setNome(const std::string &n);
 

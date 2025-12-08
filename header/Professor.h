@@ -14,11 +14,11 @@ public:
   std::string getEspecialidade() const;
   void setEspecialidade(const std::string &e);
 
-  void exibir(std::ostream &os) const;
+  void exibir(std::ostream &os) const override;
 
   void setNome(const std::string &n);
   void setTelefone(const std::string &t);
-  void setId(int id);
+  void setId(size_t id) override;
 
   friend std::ostream &operator<<(std::ostream &os, const Professor &p);
 };

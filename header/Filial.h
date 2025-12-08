@@ -1,8 +1,9 @@
 #pragma once
 #include "IFilePersistable.h"
+#include "IIndentificavel.h"
 #include <string>
 
-class Filial : public IFilePersistable {
+class Filial : public IFilePersistable, public IIdentificavel {
 private:
   static size_t nextId;
   size_t academiaId;
@@ -17,8 +18,8 @@ public:
   Filial(size_t academiaId, const std::string &nome,
          const std::string &endereco);
 
-  size_t getId() const;
-  void setId(size_t id);
+  size_t getId() const override;
+  void setId(size_t id) override;
 
   size_t getAcademiaId() const;
   void setAcademiaId(size_t academiaId);

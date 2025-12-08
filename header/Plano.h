@@ -1,7 +1,8 @@
 #pragma once
+#include "IIndentificavel.h"
 #include <string>
 
-class Plano {
+class Plano : public IIdentificavel {
 protected:
   std::string descricao;
   double valor;
@@ -15,8 +16,8 @@ public:
   double getValor() const;
   void setDescricao(const std::string &desc);
   void setValor(double v);
-  int getId() const;
-  void setId(int i);
+  size_t getId() const override;
+  void setId(size_t i) override;
   virtual double calcularValor() const;
   virtual void exibir(std::ostream &os) const;
 };

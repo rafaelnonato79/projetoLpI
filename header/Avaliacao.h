@@ -1,7 +1,8 @@
 #pragma once
+#include "IIndentificavel.h"
 #include <string>
 
-class Avaliacao {
+class Avaliacao : public IIdentificavel {
 private:
   static size_t nextId;
   size_t id;
@@ -14,7 +15,7 @@ public:
   Avaliacao(int alunoMatricula, const std::string &alvo, int nota,
             const std::string &comentario);
 
-  size_t getId() const;
+  size_t getId() const override;
   int getAlunoMatricula() const;
   std::string getAlvo() const;
   int getNota() const;
