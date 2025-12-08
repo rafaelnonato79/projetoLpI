@@ -1,9 +1,10 @@
 #include "../header/Plano.h"
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 
-Plano::Plano(const std::string &descricao, double valor) : descricao(descricao), valor(valor) {}
+Plano::Plano(const std::string &descricao, double valor)
+    : descricao(descricao), valor(valor) {}
 
 Plano::~Plano() {}
 
@@ -17,16 +18,21 @@ int Plano::getId() const { return id; }
 
 void Plano::setId(int i) { id = i; }
 
-std::string converterMoeda(double valor){
-	std::ostringstream oss;
-	oss << "R$" << std::fixed << std::setprecision(2) << valor;
-	return oss.str();
+std::string converterMoeda(double valor) {
+  std::ostringstream oss;
+  oss << "R$" << std::fixed << std::setprecision(2) << valor;
+  return oss.str();
 }
 
 std::ostream &operator<<(std::ostream &os, const Plano &p) {
-	os << "ID:" << p.getId() << " | Descricao: " << p.getDescricao() << " | Valor estimado: R$ " << p.calcularValor();
-	return os;
+  os << "ID:" << p.getId() << " | Descricao: " << p.getDescricao()
+     << " | Valor estimado: R$ " << p.calcularValor();
+  return os;
 }
 
+double Plano::calcularValor() const { return valor; }
 
-
+void Plano::exibir(std::ostream &os) const {
+  os << "ID:" << getId() << " | Descricao: " << getDescricao()
+     << " | Valor estimado: R$ " << calcularValor();
+}

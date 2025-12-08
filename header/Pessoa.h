@@ -1,14 +1,25 @@
-#ifndef PESSOA_H
-#define PESSOA_H
-
+#pragma once
+#include <ostream>
 #include <string>
 
 class Pessoa {
+private:
+  int id;
   std::string nome;
+  std::string telefone;
 
 public:
-  void setNome(const std::string &n);
-  std::string getNome() const;
-};
+  Pessoa(int id, const std::string &nome, const std::string &telefone);
 
-#endif
+  int getId() const;
+  std::string getNome() const;
+  std::string getTelefone() const;
+
+  void setId(int id);
+  void setNome(const std::string &n);
+  void setTelefone(const std::string &t);
+
+  virtual void exibir(std::ostream &os) const;
+
+  virtual ~Pessoa();
+};

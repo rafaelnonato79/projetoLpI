@@ -1,37 +1,31 @@
-
-#ifndef TREINO_H
-#define TREINO_H
-
-#include "Modalidade.h"
+#pragma once
+#include "Equipamento.h"
+#include <ostream>
 #include <string>
 #include <vector>
 
 class Treino {
+private:
   std::string nome;
-  std::vector<class Exercicio *> exercicios;
-  Modalidade *modalidade;
+  std::string data;
+  std::vector<Equipamento> equipamentos;
 
 public:
-  Treino();
-  Treino(const std::string &nome, std::vector<class Exercicio *> exercicios,
-         class Modalidade *modalidade);
+  Treino(const std::string &nome, const std::string &data);
 
-  void setNome(const std::string &nome);
   std::string getNome() const;
+  std::string getData() const;
 
-  void setExercicios(const std::vector<class Exercicio *> &exercicios);
-  const std::vector<class Exercicio *> &getExercicios() const;
+  void setNome(const std::string &n);
+  void setData(const std::string &d);
 
-  void setModalidade(class Modalidade *modalidade);
-  class Modalidade *getModalidade() const;
+  void adicionarEquipamento(const Equipamento &e);
+  const std::vector<Equipamento> &getEquipamentos() const;
 
-  static bool deletarTreino(std::vector<Treino *> &treino,
-                            const std::string &nome);
-  static bool atualizarTreino(std::vector<Treino *> &treino,
-                              const std::string &nome,
-                              const std::string &novoNome,
-                              std::vector<class Exercicio *> exercicios,
-                              class Modalidade *modalidade);
+  Treino &operator+=(const Equipamento &e);
+
+  bool removerEquipamentoPorNome(const std::string &nome);
+  bool editarQuantidadeEquipamento(const std::string &nome, int novaQuantidade);
+
+  friend std::ostream &operator<<(std::ostream &os, const Treino &t);
 };
-
-#endif

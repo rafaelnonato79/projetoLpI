@@ -18,10 +18,10 @@ void Pessoa::setNome(const std::string &novo) { nome = novo; }
 void Pessoa::setTelefone(const std::string &novo) { telefone = novo; }
 
 void Pessoa::exibir(std::ostream &os) const {
-    os << "ID: " << id << " | Nome: " << nome << " | Telefone: " << telefone;
+  os << "ID: " << id << " | Nome: " << nome << " | Telefone: " << telefone;
 }
 
 std::ostream &operator<<(std::ostream &os, const Pessoa &p) {
-    p.exibir(os);
-    return os;
+  p.exibir(os);
+  return os;
 }
