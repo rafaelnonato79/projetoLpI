@@ -7,3 +7,4 @@
 7;aoisdoi;10000
 8;alksdjkalwklasjdlkasl;10000
 9;asdasdasdasdyhao9iuw;1231231
+10;Academia C++;15

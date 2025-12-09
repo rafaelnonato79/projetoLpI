@@ -10,7 +10,7 @@ Professor::Professor(int id, const std::string &nome,
 std::string Professor::getEspecialidade() const { return especialidade; }
 
 void Professor::exibir(std::ostream &os) const {
-  Pessoa::exibir(os);
+  os << "ID: " << getId() << " | Nome: " << getNome() << " | Telefone: " << getTelefone();
   os << " | Especialidade: " << especialidade;
 }
 

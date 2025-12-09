@@ -22,7 +22,7 @@ public:
   void setNome(const std::string &n);
   void setTelefone(const std::string &t);
 
-  virtual void exibir(std::ostream &os) const;
+  virtual void exibir(std::ostream &os) const = 0;
 
   std::string toFileString() const override;
   bool fromFileString(const std::string &line) override;

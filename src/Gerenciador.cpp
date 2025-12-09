@@ -225,10 +225,10 @@ void Gerenciador::atualizarProfessor(int id, const Professor &professorAtualizad
 void Gerenciador::adicionarPlano(std::shared_ptr<Plano> p) {
   // carregar planos existentes para ajustar id
   planos.clear();
-  std::vector<Plano> planosBase;
+  std::vector<PlanoPersonalizado> planosBase;
   Gerenciador::carregarObjetosDeArquivo("planos.txt", planosBase);
   for (const auto &pl : planosBase)
-    planos.push_back(std::make_shared<Plano>(pl));
+    planos.push_back(std::make_shared<PlanoPersonalizado>(pl));
   std::vector<PlanoPersonalizado> planosPers;
   Gerenciador::carregarObjetosDeArquivo("planos_personalizados.txt",
                                         planosPers);
@@ -249,7 +249,7 @@ void Gerenciador::adicionarPlano(std::shared_ptr<Plano> p) {
 
 void Gerenciador::listarPlanos() const {
   std::cout << "\n===== LISTA DE PLANOS =====\n\n";
-  std::vector<Plano> planosBase;
+  std::vector<PlanoPersonalizado> planosBase;
   std::vector<PlanoPersonalizado> planosPers;
   Gerenciador::carregarObjetosDeArquivo("planos.txt", planosBase);
   Gerenciador::carregarObjetosDeArquivo("planos_personalizados.txt",
@@ -271,10 +271,10 @@ void Gerenciador::listarPlanos() const {
 void Gerenciador::adicionarPlanoPersonalizado(const std::string &descricao,
                                               double valor) {
   planos.clear();
-  std::vector<Plano> planosBase;
+  std::vector<PlanoPersonalizado> planosBase;
   Gerenciador::carregarObjetosDeArquivo("planos.txt", planosBase);
   for (const auto &pl : planosBase)
-    planos.push_back(std::make_shared<Plano>(pl));
+    planos.push_back(std::make_shared<PlanoPersonalizado>(pl));
   std::vector<PlanoPersonalizado> planosPers;
   Gerenciador::carregarObjetosDeArquivo("planos_personalizados.txt",
                                         planosPers);
@@ -297,10 +297,10 @@ void Gerenciador::adicionarPlanoPersonalizado(const std::string &descricao,
 std::shared_ptr<Plano>
 Gerenciador::buscarPlanoPorDescricao(const std::string &descricao) {
   planos.clear();
-  std::vector<Plano> planosBase;
+  std::vector<PlanoPersonalizado> planosBase;
   Gerenciador::carregarObjetosDeArquivo("planos.txt", planosBase);
   for (const auto &pl : planosBase)
-    planos.push_back(std::make_shared<Plano>(pl));
+    planos.push_back(std::make_shared<PlanoPersonalizado>(pl));
   std::vector<PlanoPersonalizado> planosPers;
   Gerenciador::carregarObjetosDeArquivo("planos_personalizados.txt",
                                         planosPers);
@@ -316,10 +316,10 @@ Gerenciador::buscarPlanoPorDescricao(const std::string &descricao) {
 std::shared_ptr<Plano> Gerenciador::buscarPlanoPorId(int id) const {
   auto self = const_cast<Gerenciador *>(this);
   self->planos.clear();
-  std::vector<Plano> planosBase;
+  std::vector<PlanoPersonalizado> planosBase;
   Gerenciador::carregarObjetosDeArquivo("planos.txt", planosBase);
   for (const auto &pl : planosBase)
-    self->planos.push_back(std::make_shared<Plano>(pl));
+    self->planos.push_back(std::make_shared<PlanoPersonalizado>(pl));
   std::vector<PlanoPersonalizado> planosPers;
   Gerenciador::carregarObjetosDeArquivo("planos_personalizados.txt",
                                         planosPers);
@@ -333,7 +333,7 @@ std::shared_ptr<Plano> Gerenciador::buscarPlanoPorId(int id) const {
 }
 
 void Gerenciador::removerPlanoPorId(int id) {
-  std::vector<Plano> planosBase;
+  std::vector<PlanoPersonalizado> planosBase;
   std::vector<PlanoPersonalizado> planosPers;
   Gerenciador::carregarObjetosDeArquivo("planos.txt", planosBase);
   Gerenciador::carregarObjetosDeArquivo("planos_personalizados.txt",
@@ -361,14 +361,14 @@ void Gerenciador::removerPlanoPorId(int id) {
 
   planos.clear();
   for (const auto &pl : planosBase)
-    planos.push_back(std::make_shared<Plano>(pl));
+    planos.push_back(std::make_shared<PlanoPersonalizado>(pl));
   for (const auto &pl : planosPers)
     planos.push_back(std::make_shared<PlanoPersonalizado>(pl));
 }
 
 bool Gerenciador::editarPlano(int idPlano, const std::string &novaDescricao,
                               double novoValor) {
-  std::vector<Plano> planosBase;
+  std::vector<PlanoPersonalizado> planosBase;
   std::vector<PlanoPersonalizado> planosPers;
   Gerenciador::carregarObjetosDeArquivo("planos.txt", planosBase);
   Gerenciador::carregarObjetosDeArquivo("planos_personalizados.txt",
@@ -408,7 +408,7 @@ bool Gerenciador::editarPlano(int idPlano, const std::string &novaDescricao,
 
   planos.clear();
   for (const auto &pl : planosBase)
-    planos.push_back(std::make_shared<Plano>(pl));
+    planos.push_back(std::make_shared<PlanoPersonalizado>(pl));
   for (const auto &pl : planosPers)
     planos.push_back(std::make_shared<PlanoPersonalizado>(pl));
 

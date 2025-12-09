@@ -30,7 +30,7 @@ bool Aluno::operator==(const Aluno &o) const {
 bool Aluno::operator<(const Aluno &o) const { return getNome() < o.getNome(); }
 
 void Aluno::exibir(std::ostream &os) const {
-  Pessoa::exibir(os);
+  os << "ID: " << getId() << " | Nome: " << getNome() << " | Telefone: " << getTelefone();
   os << " | Matricula: " << matricula;
   if (plano)
     os << " | Plano: " << plano->getDescricao();

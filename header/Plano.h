@@ -20,7 +20,7 @@ public:
   void setValor(double v);
   size_t getId() const override;
   void setId(size_t i) override;
-  virtual double calcularValor() const;
+  virtual double calcularValor() const = 0;
   virtual void exibir(std::ostream &os) const;
 
   std::string toFileString() const override;

@@ -32,8 +32,6 @@ std::ostream &operator<<(std::ostream &os, const Plano &p) {
   return os;
 }
 
-double Plano::calcularValor() const { return valor; }
-
 void Plano::exibir(std::ostream &os) const {
   os << "ID:" << getId() << " | Descricao: " << getDescricao()
      << " | Valor estimado: R$ " << calcularValor();
