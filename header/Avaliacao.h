@@ -1,8 +1,9 @@
 #pragma once
+#include "IFilePersistable.h"
 #include "IIndentificavel.h"
 #include <string>
 
-class Avaliacao : public IIdentificavel {
+class Avaliacao : public IIdentificavel, public IFilePersistable {
 private:
   static size_t nextId;
   size_t id;
@@ -12,6 +13,7 @@ private:
   std::string comentario;
 
 public:
+  Avaliacao();
   Avaliacao(int alunoMatricula, const std::string &alvo, int nota,
             const std::string &comentario);
 
@@ -24,4 +26,7 @@ public:
 
   void setNota(int n);
   void setComentario(const std::string &c);
+
+  std::string toFileString() const override;
+  bool fromFileString(const std::string &line) override;
 };

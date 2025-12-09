@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-class Aluno : public Pessoa, public IFilePersistable {
+class Aluno : public Pessoa {
 private:
   int matricula;
   Plano *plano = nullptr;

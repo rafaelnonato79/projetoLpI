@@ -312,6 +312,13 @@ void submenuProfessores(Gerenciador &g) {
         if (!novaEspecialidade.empty())
           p->setEspecialidade(novaEspecialidade);
         cout << "Professor atualizado.\n";
+        
+        try {
+          g.atualizarProfessor(id, *p);
+          cout << "Alteracoes salvas com sucesso.\n";
+        } catch (const exception &e) {
+          cout << "Erro ao salvar: " << e.what() << "\n";
+        }
       }
     } else if (opcao == 7) {
       string nomeAula;
@@ -375,13 +382,13 @@ void submenuAlunos(Gerenciador &g) {
       Academia *academia = g.buscarAcademiaPorId(academiaId);
       if (!academia) {
         cout << "Academia nao encontrada.\n";
-        return;
+        continue;
       }
       // List filiais for selected academia
       const auto &filiais = academia->getFiliais();
       if (filiais.empty()) {
         cout << "Nenhuma filial cadastrada para esta academia.\n";
-        return;
+        continue;
       }
       cout << "Filiais disponíveis:\n";
       for (const auto &f : filiais)
@@ -394,7 +401,7 @@ void submenuAlunos(Gerenciador &g) {
       Filial *filial = academia->buscarFilialPorId(filialId);
       if (!filial) {
         cout << "Filial nao encontrada.\n";
-        return;
+        continue;
       }
 
       // escolher plano
@@ -446,7 +453,7 @@ void submenuAlunos(Gerenciador &g) {
         }
       }
       try {
-        g.adicionarAluno(a, filial);
+        g.adicionarAluno(a, filialId);
         cout << "Aluno adicionado.\n";
       } catch (const std::exception &e) {
         cout << "Erro ao adicionar aluno: " << e.what() << "\n";
@@ -583,6 +590,13 @@ void submenuAlunos(Gerenciador &g) {
           }
         }
       }
+      // Salvar alterações no arquivo
+      try {
+        g.atualizarAluno(matricula, *a);
+        cout << "Alteracoes salvas com sucesso.\n";
+      } catch (const exception &e) {
+        cout << "Erro ao salvar: " << e.what() << "\n";
+      }
     }
   }
 }
@@ -616,20 +630,22 @@ void submenuEquipamentos(Gerenciador &g) {
     } else if (opcao == 2) {
       g.listarEquipamentos();
     } else if (opcao == 3) {
-      string nomeEquipamento;
-      cout << "Nome do equipamento: ";
-      getline(cin, nomeEquipamento);
+      int idEquipamento;
+      cout << "ID do equipamento: ";
+      cin >> idEquipamento;
+      cin.ignore();
       try {
-        g.removerEquipamento(nomeEquipamento);
+        g.removerEquipamento(idEquipamento);
         cout << "Removido.\n";
       } catch (const exception &e) {
         cout << "Erro: " << e.what() << "\n";
       }
     } else if (opcao == 4) {
-      string nomeEquipamento;
-      cout << "Nome do equipamento a editar: ";
-      getline(cin, nomeEquipamento);
-      Equipamento *e = g.buscarEquipamentoPorNome(nomeEquipamento);
+      int idEquipamento;
+      cout << "ID do equipamento a editar: ";
+      cin >> idEquipamento;
+      cin.ignore();
+      Equipamento *e = g.buscarEquipamentoPorId(idEquipamento);
       if (!e) {
         cout << "Equipamento nao encontrado.\n";
       } else {
@@ -649,6 +665,7 @@ void submenuEquipamentos(Gerenciador &g) {
           } catch (...) {
           }
         }
+        g.atualizarEquipamento(idEquipamento, *e);
         cout << "Equipamento atualizado.\n";
       }
     }
@@ -697,15 +714,23 @@ void submenuTreinos(Gerenciador &g) {
         cout << "Nome eq: ";
         getline(cin, equipamentoNome);
         cout << "Qtd: ";
-        cin >> quantidade;
-        cin.ignore();
+        try {
+          quantidade = readIntFromInput();
+        } catch (const ValidationError &e) {
+          cout << "Erro: " << e.what() << "\n";
+          continue;
+        }
         t += Equipamento(equipamentoNome, quantidade);
         cout << "Mais? (s/n): ";
         cin >> resposta;
         cin.ignore();
       }
-      a->adicionarTreino(t);
-      cout << "Treino adicionado.\n";
+      try {
+        g.adicionarTreinoAoAluno(matricula, t);
+        cout << "Treino adicionado.\n";
+      } catch (const exception &e) {
+        cout << "Erro: " << e.what() << "\n";
+      }
     } else if (opcao == 2) {
       int matricula;
       cout << "Matricula: ";
@@ -771,7 +796,7 @@ void submenuTreinos(Gerenciador &g) {
         cout << "\nEquipamentos do treino:\n";
         const auto &eqs = t.getEquipamentos();
         for (size_t i = 0; i < eqs.size(); ++i) {
-          cout << i + 1 << ". " << eqs[i] << "\n";
+          cout << i + 1 << ". " << eqs[i].getNome() << " (" << eqs[i].getQuantidade() << " repetições)\n";
         }
         cout << "1. Adicionar equipamento\n";
         cout << "2. Remover equipamento por nome\n";
@@ -814,6 +839,7 @@ void submenuTreinos(Gerenciador &g) {
           }
         }
       }
+      g.salvarTodosOsTreinos();
       cout << "Treino atualizado.\n";
     }
   }

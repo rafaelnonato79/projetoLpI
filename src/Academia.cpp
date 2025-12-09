@@ -11,9 +11,9 @@ Academia::Academia(const std::string &nome, size_t maxAlunos)
 std::string Academia::getNome() const { return nome; }
 
 void Academia::setNome(const std::string &n) { nome = n; }
-unsigned long Academia::getMaxAlunos() const { return maxAlunos; }
+size_t Academia::getMaxAlunos() const { return maxAlunos; }
 
-void Academia::setMaxAlunos(unsigned long max) { maxAlunos = max; }
+void Academia::setMaxAlunos(size_t max) { maxAlunos = max; }
 
 size_t Academia::getId() const { return id; }
 void Academia::setId(size_t i) { id = i; }

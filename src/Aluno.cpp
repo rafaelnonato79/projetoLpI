@@ -64,9 +64,9 @@ std::ostream &operator<<(std::ostream &os, const Aluno &a) {
 }
 
 std::string Aluno::toFileString() const {
-  // Example: id;nome;matricula
-  return std::to_string(getId()) + ";" + getNome() + ";" +
-         std::to_string(getMatricula());
+  // Format: id;nome;telefone;matricula
+  return std::to_string(getId()) + ";" + getNome() + ";" + getTelefone() +
+         ";" + std::to_string(getMatricula());
 }
 
 bool Aluno::fromFileString(const std::string &line) {
@@ -76,10 +76,14 @@ bool Aluno::fromFileString(const std::string &line) {
   size_t sep2 = line.find(';', sep1 + 1);
   if (sep2 == std::string::npos)
     return false;
+  size_t sep3 = line.find(';', sep2 + 1);
+  if (sep3 == std::string::npos)
+    return false;
   try {
     setId(std::stoul(line.substr(0, sep1)));
     setNome(line.substr(sep1 + 1, sep2 - sep1 - 1));
-    matricula = std::stoul(line.substr(sep2 + 1));
+    setTelefone(line.substr(sep2 + 1, sep3 - sep2 - 1));
+    matricula = std::stoul(line.substr(sep3 + 1));
   } catch (...) {
     return false;
   }

@@ -12,6 +12,7 @@ private:
   std::vector<Equipamento> equipamentos;
 
 public:
+  Treino();
   Treino(const std::string &nome, const std::string &data);
 
   std::string getNome() const;

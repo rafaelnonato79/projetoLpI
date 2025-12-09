@@ -4,8 +4,10 @@
 #include <filesystem>
 #include <fstream>
 
+Treino::Treino() : nome(""), data("") {}
+
 Treino::Treino(const std::string &nome, const std::string &data)
-    : nome(nome), data(data) {}
+  : nome(nome), data(data) {}
 
 std::string Treino::getNome() const { return nome; }
 
@@ -55,7 +57,7 @@ std::ostream &operator<<(std::ostream &os, const Treino &t) {
   if (!eqs.empty()) {
     os << " | Equipamentos: ";
     for (size_t i = 0; i < eqs.size(); ++i) {
-      os << eqs[i];
+      os << eqs[i].getNome() << " (" << eqs[i].getQuantidade() << " repetições)";
       if (i + 1 < eqs.size())
         os << ", ";
     }

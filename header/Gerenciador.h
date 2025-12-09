@@ -39,9 +39,11 @@ private:
 public:
   // Alunos
   void adicionarAluno(const Aluno &a, Filial *filial);
+  void adicionarAluno(const Aluno &a, size_t filialId);
   void listarAlunos() const;
   Aluno *buscarAlunoPorMatricula(int matricula);
   void removerAluno(int matricula);
+  void atualizarAluno(int matricula, const Aluno &alunoAtualizado);
   void matricularAlunoEmAula(int matricula, const std::string &nomeAula);
 
   // Professores
@@ -49,6 +51,7 @@ public:
   void listarProfessores() const;
   void removerProfessor(int id);
   Professor *buscarProfessorPorId(int id);
+  void atualizarProfessor(int id, const Professor &professorAtualizado);
 
   // Planos
   void adicionarPlano(std::shared_ptr<Plano> p);
@@ -71,9 +74,15 @@ public:
   // Equipamentos
   void adicionarEquipamento(const Equipamento &e);
   void listarEquipamentos() const;
-  void removerEquipamento(const std::string &nome);
+  void removerEquipamento(int id);
   Equipamento *buscarEquipamentoPorNome(const std::string &nome);
   Equipamento *buscarEquipamentoPorId(int id);
+  void atualizarEquipamento(int id, const Equipamento &equipamentoAtualizado);
+
+  // Treinos
+  void adicionarTreinoAoAluno(int matricula, const Treino &treino);
+  void carregarTreinosDoAluno(int matricula, Aluno *aluno);
+  void salvarTodosOsTreinos();
 
   // Academia info
   void setNomeAcademia(const std::string &nome);
@@ -115,11 +124,11 @@ public:
 
   template <typename T>
   static void salvarObjetoEmArquivo(const T &obj, const std::string &caminho) {
-    std::filesystem::create_directories(
-        std::filesystem::path("bin/" + caminho).parent_path());
+    std::filesystem::create_directories("bin");
     std::ofstream file("bin/" + caminho, std::ios::app);
     if (file.is_open()) {
       file << obj.toFileString() << std::endl;
+      file.close();
     }
   }
 

@@ -40,3 +40,10 @@ bool Modalidade::atualizarModalidade(std::vector<Modalidade *> &modalidades,
   }
   return false;
 }
+
+std::string Modalidade::toFileString() const { return modalidade; }
+
+bool Modalidade::fromFileString(const std::string &line) {
+  modalidade = line;
+  return true;
+}

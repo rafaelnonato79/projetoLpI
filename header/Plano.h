@@ -1,14 +1,16 @@
 #pragma once
+#include "IFilePersistable.h"
 #include "IIndentificavel.h"
 #include <string>
 
-class Plano : public IIdentificavel {
+class Plano : public IIdentificavel, public IFilePersistable {
 protected:
   std::string descricao;
   double valor;
   int id;
 
 public:
+  Plano();
   Plano(const std::string &descricao, double valor);
   virtual ~Plano();
 
@@ -20,4 +22,7 @@ public:
   void setId(size_t i) override;
   virtual double calcularValor() const;
   virtual void exibir(std::ostream &os) const;
+
+  std::string toFileString() const override;
+  bool fromFileString(const std::string &line) override;
 };

@@ -27,3 +27,24 @@ std::ostream &operator<<(std::ostream &os, const Pessoa &p) {
   p.exibir(os);
   return os;
 }
+
+std::string Pessoa::toFileString() const {
+  return std::to_string(id) + ";" + nome + ";" + telefone;
+}
+
+bool Pessoa::fromFileString(const std::string &line) {
+  size_t sep1 = line.find(';');
+  if (sep1 == std::string::npos)
+    return false;
+  size_t sep2 = line.find(';', sep1 + 1);
+  if (sep2 == std::string::npos)
+    return false;
+  try {
+    id = static_cast<int>(std::stoul(line.substr(0, sep1)));
+    nome = line.substr(sep1 + 1, sep2 - sep1 - 1);
+    telefone = line.substr(sep2 + 1);
+  } catch (...) {
+    return false;
+  }
+  return true;
+}

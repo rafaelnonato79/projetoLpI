@@ -1,9 +1,10 @@
 #pragma once
+#include "IFilePersistable.h"
 #include "IIndentificavel.h"
 #include <ostream>
 #include <string>
 
-class Pessoa : public IIdentificavel {
+class Pessoa : public IIdentificavel, public IFilePersistable {
 private:
   int id;
   std::string nome;
@@ -22,6 +23,9 @@ public:
   void setTelefone(const std::string &t);
 
   virtual void exibir(std::ostream &os) const;
+
+  std::string toFileString() const override;
+  bool fromFileString(const std::string &line) override;
 
   virtual ~Pessoa();
 };

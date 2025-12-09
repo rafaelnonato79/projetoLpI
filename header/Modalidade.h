@@ -1,10 +1,11 @@
 #ifndef MODALIDADE_H
 #define MODALIDADE_H
 
+#include "IFilePersistable.h"
 #include <string>
 #include <vector>
 
-class Modalidade {
+class Modalidade : public IFilePersistable {
   std::string modalidade;
 
 public:
@@ -19,6 +20,9 @@ public:
   static bool atualizarModalidade(std::vector<Modalidade *> &modalidades,
                                   const std::string &modalidade,
                                   const std::string &novaModalidade);
+
+  std::string toFileString() const override;
+  bool fromFileString(const std::string &line) override;
 };
 
 #endif
